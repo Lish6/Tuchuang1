@@ -1,0 +1,247 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+// 基类：Drink
+class Drink {
+public:
+    string DName;     // 饮品类别
+    int DQuantity;    // 饮品数量
+    int DPrice;       // 饮品单价
+public:
+    Drink(string name, int quantity, int price)
+        : DName(name), DQuantity(quantity), DPrice(price) {}
+
+    virtual int calculate_price() {
+        return DQuantity * DPrice;  // 基本总价
+    }
+
+    virtual void print_info() {
+        cout << DName << " " << DQuantity << " " << DPrice;
+    }
+};
+
+// 派生类：Coffee
+class Coffee : public Drink {
+private:
+    string CTem;  // 温度
+    string CSug;  // 糖度
+public:
+    Coffee(string name, int quantity, int price, string tem, string sug)
+        : Drink(name, quantity, price), CTem(tem), CSug(sug) {}
+
+    int calculate_price() override {
+        return DQuantity * DPrice;  // 咖啡总价，直接计算
+    }
+
+    void print_info() override {
+        cout << DName << " " << DQuantity << " " << DPrice << " " << CTem << " " << CSug;
+    }
+};
+
+// 派生类：Tea
+class Tea : public Drink {
+private:
+    string TTem;  // 温度
+    string TTas;  // 口味
+public:
+    Tea(string name, int quantity, int price, string tem, string tas)
+        : Drink(name, quantity, price), TTem(tem), TTas(tas) {}
+
+    int calculate_price() override {   //多态的定义阶段 
+        return DQuantity * DPrice * 0.8;  // 果茶打八折
+    }
+
+    void print_info() override {
+        cout << DName << " " << DQuantity << " " << DPrice << " " << TTem << " " << TTas;
+    }
+};
+
+// 计算总价的函数
+int calculate_total_price(Drink* drinks[], int num) {
+    int total_price = 0;
+    for (int i = 0; i < num; ++i) {
+        total_price += drinks[i]->calculate_price();
+    }
+    // 总购买杯数
+    int total_quantity = 0;
+    for (int i = 0; i < num; ++i) {
+        total_quantity += drinks[i]->DQuantity;
+    }
+    // 根据总购买杯数打折
+    if (total_quantity > 6) {
+        total_price *= 0.8;  // 总杯数大于6，打8折
+    } else if (total_quantity > 4) {
+        total_price *= 0.9;  // 总杯数大于4，打9折
+    }
+    return total_price;
+}
+
+int main() {
+    int N;
+    cin >> N;
+
+    Drink* drinks[2];  // 最多购买2种饮品
+
+    // 输入饮品信息
+    for (int i = 0; i < N; ++i) {
+        string type;
+        int quantity, price;
+        cin >> type >> quantity >> price;
+        
+        if (type == "C") {  // 咖啡
+            string temp, sugar;
+            cin >> temp >> sugar;
+            drinks[i] = new Coffee(type, quantity, price, temp, sugar);
+        } else if (type == "T") {  // 果茶
+            string temp, taste;
+            cin >> temp >> taste;
+            drinks[i] = new Tea(type, quantity, price, temp, taste);
+        }
+    }
+
+    // 输出每种饮品信息和总价
+    int total_price = 0;
+    for (int i = 0; i < N; ++i) {
+        drinks[i]->print_info();
+        int price = drinks[i]->calculate_price();
+        cout << " " << price << "元" << endl;
+        total_price += price;
+    }
+
+    // 计算总价并输出
+    total_price = calculate_total_price(drinks, N);
+    cout << "总价:" << total_price << "元" << endl;
+
+    // 释放内存
+    for (int i = 0; i < N; ++i) {
+        delete drinks[i];
+    }
+
+    return 0;
+}
+
+
+
+
+22222222222
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+// Person类：作为基类，包含基本信息
+class Person {
+protected:
+    string name;
+    int age;
+    char sex;
+
+public:
+    // 构造函数
+    Person(string name, int age, char sex)
+        : name(name), age(age), sex(sex) {}
+
+    // 打印个人信息
+    virtual void Print() const {
+        cout << name << " " << age << " " << sex << endl;
+    }
+};
+
+// Student类：派生自Person类，增加学号和系别
+class Student : public Person {
+protected:
+    int regNumber;
+    string department;
+
+public:
+    // 构造函数
+    Student(string name, int age, char sex, int regNumber, string department)
+        : Person(name, age, sex), regNumber(regNumber), department(department) {}
+
+    // 打印学生信息
+    void Print() const override {
+        cout << name << " " << age << " " << sex << " " << regNumber << " " << department << endl;
+    }
+};
+
+// GraduateStudent类：派生自Student类，增加导师
+class GraduateStudent : public Student {
+protected:
+    string advisor;
+
+public:
+    // 构造函数
+    GraduateStudent(string name, int age, char sex, int regNumber, string department, string advisor)
+        : Student(name, age, sex, regNumber, department), advisor(advisor) {}
+
+    // 打印研究生信息
+    void Print() const override {
+        cout << name << " " << age << " " << sex << " " << regNumber << " " << department << " " << advisor << endl;
+    }
+};
+
+// Teacher类：派生自Person类，增加职称和担任课程
+class Teacher : public Person {
+protected:
+    string post;
+    string course;
+
+public:
+    // 构造函数
+    Teacher(string name, int age, char sex, string post, string course)
+        : Person(name, age, sex), post(post), course(course) {}
+
+    // 打印教师信息
+    void Print() const override {
+        cout << name << " " << age << " " << sex << " " << post << " " << course << endl;
+    }
+};
+
+int main() {
+    string name, department, advisor, post, course;
+    int age, regNumber;
+    char sex;
+
+    // 创建对象
+    Person* per1;
+    Student* stu1;
+    GraduateStudent* gStu1;
+    Teacher* teach1;
+
+    // 输入数据
+    cin >> name >> age >> sex;
+    per1 = new Person(name, age, sex);
+
+    cin >> name >> age >> sex >> regNumber >> department;
+    stu1 = new Student(name, age, sex, regNumber, department);
+
+    cin >> name >> age >> sex >> regNumber >> department >> advisor;
+    gStu1 = new GraduateStudent(name, age, sex, regNumber, department, advisor);
+
+    cin >> name >> age >> sex >> post >> course;
+    teach1 = new Teacher(name, age, sex, post, course);
+
+    // 输出结果
+    cout << "== per1.Display() => name,age,sex" << endl;
+    per1->Print();
+
+    cout << "== stu1.Display() => name,age,sex,Reg_Number,department" << endl;
+    stu1->Print();
+
+    cout << "== gStu1.Display() => name,age,sex,Reg_Number,department,advisor" << endl;
+    gStu1->Print();
+
+    cout << "== teach1.Display() => name,age,sex,post,course" << endl;
+    teach1->Print();
+
+    // 释放内存
+    delete per1;
+    delete stu1;
+    delete gStu1;
+    delete teach1;
+
+    return 0;
+}
+
+
